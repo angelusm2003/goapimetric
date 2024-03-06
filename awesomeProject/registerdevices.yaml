@@ -1,8 +1,0 @@
-device:
-  device_id: 1000
-  name: Computer
-  metric1: 1
-  metric2: 2
-  metric3: 3
-  ip: "127.0.0.1"
-  date_creation: "2024-03-03T00:00:00Z"
