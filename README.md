@@ -1,138 +1,123 @@
-# El repositorio cuenta con 2 proyectos , el directorio awesomeProject hace referencia al agente y el proyecto apiMetrics a la apirest
+# The repository contains 2 projects. The `awesomeProject` directory refers to the agent, and the `apiMetrics` project to the REST API.
 # Agent Project
 
-Este proyecto de agente está diseñado para recopilar información sobre el uso de CPU, memoria y espacio en disco de un dispositivo y enviar estos datos a un servidor remoto.
+This agent project is designed to collect information about CPU, memory, and disk space usage from a device and send this data to a remote server.
 
-## Requisitos
+## Requirements
 
 - Go (Golang)
-- Dependencias del proyecto: `github.com/shirou/gopsutil`, `gopkg.in/yaml.v2`
-- Estar ejecutando el proyecto apiMetrics , ya que consume la api para recabar informacion de las metricas
-- Tener instalada una base de datos postgres (Se puede ocupar una version Docker)
+- Project dependencies: `github.com/shirou/gopsutil`, `gopkg.in/yaml.v2`
+- The `apiMetrics` project must be running, as the agent consumes the API to send metric information
+- A PostgreSQL database must be installed (a Docker version can be used)
 
-## Instalación
+## Installation
 
-1. Clona este repositorio:
+1. Clone this repository:
 
-```
 git clone https://github.com/tu-usuario/agent-project.git
-```
 
-2. Instala las dependencias:
 
-```
+2. Install dependencies:
+
 go mod tidy
-```
 
-## Uso
 
-El proyecto hace uso de un archivo registerdevices.yaml configurado en la raíz del proyecto. Este archivo contine información sobre los dispositivos que el agente debe monitorear, incluidos los ID de dispositivo y las métricas a recopilar.
+## Usage
 
-1. Ejecuta el agente:
+The project uses a `registerdevices.yaml` file located at the root of the project. This file contains information about the devices the agent should monitor, including device IDs and the metrics to collect.
 
-```
+1. Run the agent:
+
 go run main.go
-```
 
-El agente recopilará información sobre el uso de CPU, memoria y espacio en disco según la configuración proporcionada en el archivo YAML y enviará estos datos al servidor especificado (En este caso un base de datos postgress en la tabla monitor_details)
+
+The agent will collect information about CPU, memory, and disk usage according to the configuration provided in the YAML file and send this data to the specified server (in this case, a PostgreSQL database in the `monitor_details` table).
 
 # API Metrics
 
-API Metrics es un proyecto GoLang diseñado para gestionar métricas de dispositivos a través de una API RESTful.
+API Metrics is a GoLang project designed to manage device metrics through a RESTful API.
 
-## Introducción
+## Introduction
 
-API Metrics es una solución flexible y escalable para gestionar métricas de dispositivos utilizando una API RESTful. Proporciona una interfaz simple y eficiente para registrar dispositivos, almacenar y recuperar métricas, y autenticar usuarios
+API Metrics is a flexible and scalable solution for managing device metrics using a RESTful API. It provides a simple and efficient interface to register devices, store and retrieve metrics, and authenticate users.
 
-## Características
+## Features
 
-- Registro de dispositivos: Los usuarios pueden registrar nuevos dispositivos en la plataforma.
-- Gestión de métricas: Los dispositivos pueden enviar métricas y recuperar métricas históricas.
-- Autenticación de usuarios: Se utiliza JSON Web Tokens (JWT) para autenticar y autorizar usuarios.
+- Device registration: Users can register new devices on the platform.
+- Metrics management: Devices can send and retrieve historical metrics.
+- User authentication: JSON Web Tokens (JWT) are used to authenticate and authorize users.
 
-## Requisitos Previos
+## Prerequisites
 
-Antes de comenzar, asegúrate de tener instalados los siguientes requisitos:
+Before starting, make sure you have the following installed:
 
-- Go 1.15 o superior
-- PostgreSQL (se debe crear una base de datos de nombre metrics, las tablas son creadas automaticamente exepto metrics), en ella se guardara informacion en 4 tablas:
-  a) devices
-  b) metrics(para efecto del ejercicio no se ocupara ya que serviria mas cuando el backend este integrado aun front para en lugar de mostrar el id muestre el nombre (se adjunta el script)
-  c) monitor_details
-  d) users
+- Go 1.15 or higher
+- PostgreSQL (a database named `metrics` must be created; tables are created automatically except `metrics`). Data is stored in 4 tables:
+  a) `devices`  
+  b) `metrics` (not used in this exercise, as it would be more useful when the backend is integrated with a frontend to display the name instead of just the ID — a script is provided)  
+  c) `monitor_details`  
+  d) `users`
 - Git
 
-## Instalación
+## Installation
 
-Para configurar y ejecutar el proyecto localmente, sigue estos pasos:
+To set up and run the project locally, follow these steps:
 
-1. Clona el repositorio:
+1. Clone the repository:
 
-```
 git clone https://github.com/tuusuario/apiMetrics.git
-```
 
-2. Instala las dependencias
 
-```
+2. Install dependencies:
+
 go mod tidy
-```
 
-3. Configura las variables de entorno creando un archivo .env y estableciendo las configuraciones para la vase de datos que se utiliza(Postgres).
 
-## Uso
+3. Configure environment variables by creating a `.env` file and setting the necessary configuration for the PostgreSQL database used.
 
-Para ejecutar el proyecto, utiliza el siguiente comando:
+## Usage
 
-```
+To run the project, use the following command:
+
 go run main.go
-```
+
 
 ## Endpoints
 
-La API expone los siguientes endpoints:
+The API exposes the following endpoints:
 
-a) POST /devices/register: Registra un nuevo dispositivo (requiere autenticación, haberse logueado on usuario y pasar el token).
+a) `POST /devices/register`: Registers a new device (requires authentication — you must be logged in and provide the token).
 
-```
-curl -X POST -H "Authorization: TOKEN" -H "Content-Type: application/json" -d "{\"name\": \"Device 7\", \"metric_id_1\": 10, \"metric_id_2\": 20, \"metric_id_3\": 30, \"ip\": \"19
-2.168.1.100\", \"date_creation\": \"2024-03-05T10:00:00Z\"}" http://localhost:8080/devices/register
+curl -X POST -H "Authorization: TOKEN" -H "Content-Type: application/json" -d "{"name": "Device 7", "metric_id_1": 10, "metric_id_2": 20, "metric_id_3": 30, "ip": "192.168.1.100", "date_creation": "2024-03-05T10:00:00Z"}" http://localhost:8080/devices/register
 {"device_id":6,"name":"Device 7","metric_id_1":10,"metric_id_2":20,"metric_id_3":30,"ip":"192.168.1.100","date_creation":"2024-03-06T00:52:12.8561028-06:00"}
-```
-    
-b) POST /devices/:id/metrics: Guarda métricas para un dispositivo específico.
 
-```
-curl -X POST -H "Content-Type: application/json" -d "{\"metric_1\": 15, \"metric_1_value\": 100, \"metric_2\": 25, \"metric_2_value\": 200, \"metric_3\": 35, \"metric_3_value\": 300}" http://localhost:8080/devices/1/metrics
+
+b) `POST /devices/:id/metrics`: Saves metrics for a specific device.
+
+curl -X POST -H "Content-Type: application/json" -d "{"metric_1": 15, "metric_1_value": 100, "metric_2": 25, "metric_2_value": 200, "metric_3": 35, "metric_3_value": 300}" http://localhost:8080/devices/1/metrics
 {"device_id":1,"metric_1":15,"metric_1_value":100,"metric_2":25,"metric_2_value":200,"metric_3":35,"metric_3_value":300,"timestamp":"0001-01-01T00:00:00Z"}
-```
-    
-c) GET /devices/:id/metrics: Obtiene las últimas métricas para un dispositivo específico.
 
-```
+
+c) `GET /devices/:id/metrics`: Retrieves the latest metrics for a specific device.
+
 curl http://localhost:8080/devices/1/metrics
-```
 
-d) GET /devices/:id/metrics/history: Obtiene las métricas históricas para un dispositivo específico.
 
-```
+d) `GET /devices/:id/metrics/history`: Retrieves the historical metrics for a specific device.
+
 curl http://localhost:8080/devices/1/metrics/history
-```
 
-e) POST /login: Para autenticacion de usuario, devuelve un token JWT.
 
-```
-curl -X POST -H "Content-Type: application/json" -d "{\"email\": \"user@example.com\", \"password\": \"password123\"}" http://localhost:8080/login
-```
+e) `POST /login`: Authenticates a user and returns a JWT token.
 
-f) POST /signup: Registra un nuevo usuario.
+curl -X POST -H "Content-Type: application/json" -d "{"email": "user@example.com", "password": "password123"}" http://localhost:8080/login
 
-```
-curl -X POST -H "Content-Type: application/json" -d "{\"name\": \"angel q\", \"email\": \"test@yahoo.com\", \"password\": \"securepassword\", \"role\": \"admin\"}" http://localhost:8080/signup
-```
 
-g) GET /logout: Cierra sesión e invalida el token JWT.
+f) `POST /signup`: Registers a new user.
 
-```
+curl -X POST -H "Content-Type: application/json" -d "{"name": "angel q", "email": "test@yahoo.com", "password": "securepassword", "role": "admin"}" http://localhost:8080/signup
+
+
+g) `GET /logout`: Logs out and invalidates the JWT token.
+
 curl http://localhost:8080/logout
-```
